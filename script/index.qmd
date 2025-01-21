@@ -1,0 +1,492 @@
+---
+title: "Analisando sexualidade e gênero do alunado"
+subtitle: "*Hands-on* na base de dados do PET"
+author: "[Artur Damião](https://arturdamiao.com) <br><br>"
+institute: "_Programa de Educação Tutorial - Ciências Sociais_"
+date: 2025/01/22
+date-format: long
+lang: pt
+format: 
+  revealjs:
+    transition: slide
+    transition-speed: fast
+    logo: "fflch.png"
+    logo-height: 100px
+    width: 1600
+    height: 900
+    self-contained: false
+    incremental: false
+    footer: "Slides por [Artur Damião](https://arturdamiao.com), feito com [Quarto](https://quarto.org/docs/presentations/revealjs/index.html). Código disponível [no GitHub](https://github.com/beatrizmilz/2022-latinr-quarto-tutorial)."
+    theme: simple
+    slide-number: c/t
+    show-slide-number: all
+    hash-type: number
+    preview-links: false
+knitr: 
+  opts_chunk: 
+    # eval: false
+    # echo: false
+    message: false
+    warning: false
+    fig.align: "center"
+---
+
+## Preparação
+
+Criem uma conta nos seguintes serviços:
+
+1.  [Posit Cloud](https://login.posit.cloud/register?redirect=%2F)
+
+2.  [GitHub](https://github.com/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F&source=header-home)
+
+## Carregando as bibliotecas
+
+1.  Instalar bibliotecas
+
+`install.packages("nome da biblioteca")`
+
+2.  Carregar as bibliotecas
+
+```{r}
+#| label: importacao
+#| echo: true
+
+library("googledrive")
+library("tidyverse")
+library("haven") # para ler arquivos .sav
+library("googlesheets4")
+library("flextable")
+```
+
+Bibliotecas são como as extensões do Google Docs. Elas permitem novas funcionalidades e otimizam nosso código/análise.
+
+## Lendo os arquivos
+
+Há muitas formas de ler arquivos no R.
+
+-   Direto de uma Google Sheet, com a função `read_sheet`
+
+```{r}
+#| echo: true
+#| eval: false
+url <- "https://docs.google.com/spreadsheets/d/1lbLgsoh1dFUEB3nr42g9BdmNbCPvA1LNew8dTocNT-I/edit?usp=sharing"
+
+df_raw <- googlesheets4::read_sheet(url)
+```
+
+-   Direto do diretório de trabalho, localizando o documento
+
+```{r}
+#| eval: false
+#| echo: true
+df_raw <- readxl::read_excel("../dados/bd_2006_2018.xlsx")
+```
+
+Neste caso, o arquivo que contém os dados se chama `bd_2006_2018.xlsx` e está na pasta "dados". A função `read_excel`, do pacote `readxl`, lê arquivos que terminam com .xlsx, .xls e outros.
+
+Para ler um arquivo .csv, por exemplo, teríamos de usar a função `readr::read_csv2()`.
+
+------------------------------------------------------------------------
+
+No nosso caso, utilizaremos o seguinte código:
+
+```{r}
+#| echo: true
+df_raw <- haven::read_sav("../dados/BANCO_PONDERADO_COMPLETO (2006-2019).sav")
+```
+
+Nomeamos o objeto que "salva" nossa base de dados como **df_raw**. E o que isso significa?
+
+São algumas convenções utilizadas na área de dados. **DF** vem de *dataframe*, ou seja, "quadro de dados". **Raw** é a tradução livre para "cru".
+
+Isso pois nossos dados ainda estão crus, ou seja, brutos.
+
+# Organizando a base de dados
+
+## Selecionando variáveis
+
+Inicialmente, vamos selecionar quais são as variáveis de interesse que vamos trabalhar. São elas:
+
+1.  Ano de ingresso;
+2.  Sexo;
+3.  Idade;
+4.  Cor;
+5.  Orientação sexual.
+
+```{r}
+#| echo: true
+df <- df_raw |> 
+  dplyr::select(
+    c("ANO_INGRESSO", "P1.sexo", "P2.idade",
+           "P3.cor", "P32.orsex")
+    )
+```
+
+Para vermos o que foi feito, podemos executar o seguinte código:
+
+```{r}
+#| echo: true
+View(df)
+```
+
+------------------------------------------------------------------------
+
+## A tabela {footer=false}
+
+<!-- ::: center -->
+<!-- ![](images/clipboard-126513369.png) -->
+<!-- ::: -->
+
+```{r}
+#| echo: false
+knitr::kable(tail(df, 10))
+```
+
+
+## Modificando o nome das colunas
+
+-   Agora que já temos uma base de dados mais concisa, vamos modificar o nome das colunas para facilitar o acesso e leitura do código.
+
+-   Para acessar uma coluna da base, utilizamos: `df$P32.orsex`
+
+Onde:
+
+1.  `df` é a nossa base de dados;
+2.  `$` é o símbolo que nos utilizamos para navegar "dentro" da base.
+
+Se apertarmos `TAB` no nosso teclado, conseguimos ver as colunas disponíveis.
+
+![](images/clipboard-3172008329.png)
+
+------------------------------------------------------------------------
+
+Para modificar o nome das colunas, utilizando a função `rename` do pacote `dplyr`
+
+```{r}
+#| echo: true
+df <- df |> 
+  dplyr::rename(
+    ano = ANO_INGRESSO,
+    sexo = P1.sexo,
+    idade = P2.idade,
+    cor = P3.cor,
+    orsex = P32.orsex
+  ) 
+```
+
+Com isso, vemos que os nomes agora estão diferentes.
+
+![](images/clipboard-1202624464.png)
+
+## Modificando o *tipo* das variáveis
+
+Agora que temos as colunas nomeadas como gostaríamos, vamos modificar o **tipo** de variáveis.
+
+```{r}
+#| echo: true
+df <- df |> 
+  dplyr::mutate(
+    sexo = case_when(
+      sexo == 1 ~ "Masculino",
+      TRUE ~ "Feminino"
+    ),
+    cor = factor(cor, levels = c(1, 2, 3, 4, 5),
+                 labels = c("Branca", "Preta", "Parda", "Amarela", "Indígena")),
+    orsex = factor(orsex, levels = c(1, 2, 3, 4),
+                 labels = c("somente homens", "somente mulheres", "ambos", "outros"))
+  )
+```
+
+------------------------------------------------------------------------
+
+## Tipos de variáveis
+
+| Tipo | Descrição |
+|--------------------------|----------------------------------------------|
+| `int` | Número inteiro, sem casas decimais. |
+| `float` | Número de ponto flutuante, usado para representar valores decimais. |
+| `double` | Similar ao `float`, mas com maior precisão para números decimais. |
+| `char` | Representa um único caractere, como 'A' ou '9'. |
+| `string` | Conjunto de caracteres, usado para representar texto. |
+| `bool` | Tipo booleano, que pode ser `true` (verdadeiro) ou `false` (falso). |
+| `number` | Representa qualquer valor numérico (inteiro ou decimal). |
+
+## Removendo NAs
+
+-   NA significa, geralmente, *Not Available*. Podem ser linhas vazias, por exemplo.
+
+Para remover valores indesejados, utilizamos a função `filter()`do pacote `dplyr`.
+
+```{r}
+#| echo: true
+df <- df |>
+  dplyr::filter(
+    !is.na(cor)
+  )
+```
+
+# Estatística descritiva básica
+
+## Distribuição de variáveis categóricas
+
+::::: columns
+::: {.column width="50%"}
+**Sexo**
+
+```{r}
+#| echo: true
+df |> count(sexo) |> 
+  mutate(perc = n / sum(n) * 100) |> 
+  print()
+```
+
+**Cor**
+
+```{r}
+#| echo: true
+df |> count(cor) |> 
+  mutate(perc = n / sum(n) * 100) |> 
+  print()
+```
+:::
+
+::: {.column width="50%"}
+**Orientação Sexual**
+
+```{r}
+#| echo: true
+df |> count(orsex) |> 
+  mutate(perc = n / sum(n) * 100) |> 
+  print()
+```
+:::
+:::::
+
+## Tabelas Cruzadas
+
+*   Ok, vimos como tirar a porcentagem dos valores. Mas, e se quiseremos algo mais atraente?
+
+
+Podemos utilizar o código abaixo, junto da função `flextable()` do pacote `flextable`.
+```{r}
+#| echo: true
+#| eval: false
+df |> count(sexo, cor) |> 
+  mutate(
+    porcentagem = paste0(round((n / sum(n)) * 100, 1), "%")) |> 
+  flextable::flextable() |> 
+  set_caption(" Tabela cruzada de Sexo por Cor") |> 
+  add_footer_lines("Elaborado por Artur Damião (2025), a partir dos dados do PET") |> 
+  font(fontname = "Modern", part = "all")|>
+  fontsize(size = 16, part = "all") |> 
+  align(align = "left", part = "all")
+```
+
+---
+
+**Resultado**:
+
+
+::::: columns
+::: {.column width="50%"}
+**Sexo**
+
+```{r}
+#| echo: false
+df |> count(sexo, cor) |> 
+  mutate(
+    porcentagem = paste0(round((n / sum(n)) * 100, 1), "%")) |> 
+  flextable::flextable() |> 
+  set_caption(" Tabela cruzada de Sexo por Cor") |> 
+  add_footer_lines("Elaborado por Artur Damião (2025), a partir dos dados do PET") |> 
+  font(fontname = "Modern", part = "all")|>
+  fontsize(size = 16, part = "all") |> 
+  align(align = "left", part = "all")
+```
+:::
+
+::: {.column width="50%"}
+**Sexo e Orientação Sexual**
+``` {r}
+#| echo: false
+library(dplyr)
+library(flextable)
+library(officer)
+
+df |> 
+  count(sexo, orsex) |> 
+  mutate(
+    porcentagem = paste0(round((n / sum(n)) * 100, 1), "%")
+  ) |> 
+  flextable() |> 
+  set_header_labels(
+    sexo = "Sexo",
+    orsex = "Orientação Sexual",
+    n = "Frequência",
+    porcentagem = "Porcentagem"
+  ) |> 
+  add_footer_lines("Elaborado por Artur Damião (2025), a partir dos dados do PET") |>
+  font(fontname = "Modern", part = "all") |> 
+  fontsize(size = 16, part = "all") |> 
+  align(align = "left", part = "body") |> 
+  align(align = "center", part = "header") |> 
+  autofit() |> 
+  bg(bg = "#F0F0F0", part = "header") |>  # Fundo cinza no cabeçalho
+  bold(part = "header") |>  # Negrito no cabeçalho
+  color(color = "black", part = "all") |> 
+  border_outer(part = "all", border = fp_border(color = "#000000", width = 1)) |>  # Bordas externas
+  border_inner_h(part = "all", border = fp_border(color = "#D3D3D3", width = 0.5)) |>  # Bordas internas horizontais
+  border_inner_v(part = "all", border = fp_border(color = "#D3D3D3", width = 0.5))   
+```
+:::
+:::::
+
+Ambas as tabelas foram feitas com o pacote `flextable()` que, como podemos ver, é altamente customizável.
+
+# Visualização gráfica
+
+Para fazermos gráficos, temos o pacote `ggplot2`.
+
+```{r}
+#| echo: true
+#| eval: false
+df |> 
+  count(ano, sexo) |> 
+  group_by(ano) |> 
+  mutate(perc = n / sum(n) * 100) |> 
+  ggplot(aes(x = factor(ano), y = perc, color = sexo, group = sexo)) +
+  geom_line(size = 1.1) +
+  geom_point() +
+  labs(title = "Variação da Distribuição de Sexo ao Longo dos Anos",
+       subtitle = "(2006-2017)",
+       caption = "Elaborado por Artur Damião (2025), a partir dos dados do PET",
+       x = "Ano", 
+       y = "Porcentagem (%)",
+       color = "Sexo") +
+  theme_classic()
+```
+
+
+------
+```{r}
+#| echo: false
+df |> 
+  count(ano, sexo) |> 
+  group_by(ano) |> 
+  mutate(perc = n / sum(n) * 100) |> 
+  ggplot(aes(x = factor(ano), y = perc, color = sexo, group = sexo)) +
+  geom_line(size = 1.1) +
+  geom_point() +
+  labs(title = "Variação da Distribuição de Sexo ao Longo dos Anos",
+       subtitle = "(2006-2017)",
+       caption = "Elaborado por Artur Damião (2025), a partir dos dados do PET",
+       x = "Ano", 
+       y = "Porcentagem (%)",
+       color = "Sexo") +
+  theme_classic()
+```
+
+---
+
+**Ano e orientação sexual**
+
+```{r}
+#| echo: true
+#| eval: false
+library(ggplot2)
+library(dplyr)
+library(viridis)  # Paleta de cores colorblind
+
+df |> 
+  filter(!is.na(orsex) & orsex != "outros") |> 
+  count(ano, orsex) |> 
+  group_by(ano) |> 
+  mutate(perc = n / sum(n) * 100) |> 
+  ggplot(aes(x = factor(ano), y = perc, color = orsex, group = orsex)) +
+  
+  # Linhas e pontos personalizados
+  geom_line(size = 1.2, alpha = 0.8) +  
+  geom_point(size = 3, shape = 21, fill = "white", stroke = 1.2) +
+  
+  # Adicionando labels diretos nos pontos finais das linhas
+  geom_text(aes(label = paste0(round(perc, 1), "%")), 
+            data = . %>% filter(ano == max(ano)), 
+            hjust = -0.1, size = 5, fontface = "bold") +
+
+  # Paleta de cores daltônica
+  scale_color_viridis_d(option = "plasma", end = 0.9) +
+  
+  # Títulos e eixos
+  labs(
+    title = "Variação da Distribuição de Orientação Sexual ao Longo dos Anos",
+    subtitle = "(2014-2017)",
+    caption = "Elaborado por Artur Damião (2025), a partir dos dados do PET",
+    x = "Ano", 
+    y = "Porcentagem (%)",
+    color = "Orientação Sexual"
+  ) +
+
+  # Tema customizado
+  theme_classic(base_size = 16) +
+  theme(
+    plot.title = element_text(face = "bold", size = 20, hjust = 0.5),
+    plot.subtitle = element_text(size = 16, hjust = 0.5, color = "gray30"),
+    axis.title = element_text(size = 16, face = "bold"),
+    axis.text = element_text(size = 14),
+    legend.title = element_text(face = "bold"),
+    legend.position = "top",
+    panel.grid.major.y = element_line(color = "gray80", linetype = "dashed")
+  )
+```
+
+----
+
+```{r}
+#| echo: false
+df |> 
+  filter(!is.na(orsex) & orsex != "outros") |> 
+  count(ano, orsex) |> 
+  group_by(ano) |> 
+  mutate(perc = n / sum(n) * 100) |> 
+  ggplot(aes(x = factor(ano), y = perc, color = orsex, group = orsex)) +
+  
+  # Linhas e pontos personalizados
+  geom_line(size = 1.2, alpha = 0.8) +  
+  geom_point(size = 3, shape = 21, fill = "white", stroke = 1.2) +
+  
+  # Adicionando labels diretos nos pontos finais das linhas
+  geom_text(aes(label = paste0(round(perc, 1), "%")), 
+            data = . %>% filter(ano == max(ano)), 
+            hjust = -0.1, size = 5, fontface = "bold") +
+
+  # Paleta de cores daltônica
+  scale_color_viridis_d(option = "plasma", end = 0.9) +
+  
+  # Títulos e eixos
+  labs(
+    title = "Variação da Distribuição de Orientação Sexual ao Longo dos Anos",
+    subtitle = "(2014-2017)",
+    caption = "Elaborado por Artur Damião (2025), a partir dos dados do PET",
+    x = "Ano", 
+    y = "Porcentagem (%)",
+    color = "Orientação Sexual"
+  ) +
+
+  # Tema customizado
+  theme_classic(base_size = 16) +
+  theme(
+    plot.title = element_text(face = "bold", size = 20, hjust = 0.5),
+    plot.subtitle = element_text(size = 16, hjust = 0.5, color = "gray30"),
+    axis.title = element_text(size = 16, face = "bold"),
+    axis.text = element_text(size = 14),
+    legend.title = element_text(face = "bold"),
+    legend.position = "top",
+    panel.grid.major.y = element_line(color = "gray80", linetype = "dashed")
+  )
+```
+```
+
+## Por enquanto é isso.
+
+Qualquer coisa, estou à disposição. 
+
