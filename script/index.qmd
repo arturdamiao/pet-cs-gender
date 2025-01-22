@@ -16,7 +16,7 @@ format:
     height: 900
     self-contained: false
     incremental: false
-    footer: "Slides por [Artur Damião](https://arturdamiao.com), feito com [Quarto](https://quarto.org/docs/presentations/revealjs/index.html). Código disponível [no GitHub](https://github.com/arturdamiao/pet-cs-gender)."
+    footer: "Slides por [Artur Damião](https://arturdamiao.com), feito com [Quarto](https://quarto.org/). Código disponível [no GitHub](https://github.com/arturdamiao/pet-cs-gender)."
     theme: simple
     slide-number: c/t
     show-slide-number: all
@@ -84,16 +84,21 @@ Ou, alternativamente, usamos o atalho `CTRL+ALT+SHIFT+N`
 
 `install.packages("nome da biblioteca")`
 
+
+```{r}
+#| echo: true
+#| eval: false
+
+install.packages(c("curl", "googledrive","tidyverse",
+                   "haven", "googlesheets4", "flextable"))
+```
+
+
 2.  Carregar as bibliotecas
 
 ```{r}
 #| label: importacao
 #| echo: true
-
-# Baixar as bibliotecas necessárias
-
-install.packages(c("curl", "googledrive","tidyverse",
-                   "haven", "googlesheets4", "flextable"))
 
 # Carregando as bibliotecas
 library("curl")
