@@ -63,9 +63,20 @@ knitr:
 
 Criar uma conta nos seguintes serviços:
 
-1.  [Posit Cloud](https://login.posit.cloud/register?redirect=%2F)
+1.  [Posit Cloud](https://login.posit.cloud/register?redirect=%2F) -> New Project -> **New RStudio Project**
 
 2.  [GitHub](https://github.com/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F&source=header-home)
+
+
+-   Vamos criar um projeto no RStudio "virtual". Demora um pouco para carregar no início. 
+
+---
+
+Criaremos um novo Script (documento que termina com `.R`). 
+
+Ou, alternativamente, usamos o atalho `CTRL+ALT+SHIFT+N`
+
+![](images/rstudio-cloud.png)
 
 ## Carregando as bibliotecas
 
@@ -79,7 +90,13 @@ Criar uma conta nos seguintes serviços:
 #| label: importacao
 #| echo: true
 
-library(curl)
+# Baixar as bibliotecas necessárias
+
+install.packages(c("curl", "googledrive","tidyverse",
+                   "haven", "googlesheets4", "flextable"))
+
+# Carregando as bibliotecas
+library("curl")
 library("googledrive")
 library("tidyverse")
 library("haven") # para ler arquivos .sav
