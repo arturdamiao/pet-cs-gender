@@ -16,7 +16,7 @@ format:
     height: 900
     self-contained: false
     incremental: false
-    footer: "Slides por [Artur Damião](https://arturdamiao.com), feito com [Quarto](https://quarto.org/docs/presentations/revealjs/index.html). Código disponível [no GitHub](https://github.com/beatrizmilz/2022-latinr-quarto-tutorial)."
+    footer: "Slides por [Artur Damião](https://arturdamiao.com), feito com [Quarto](https://quarto.org/docs/presentations/revealjs/index.html). Código disponível [no GitHub](https://arturdamiao.github.io/pet-cs-gender/script/index.html#/)."
     theme: simple
     slide-number: c/t
     show-slide-number: all
