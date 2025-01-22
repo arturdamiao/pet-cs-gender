@@ -114,6 +114,7 @@ Inicialmente, vamos selecionar quais são as variáveis de interesse que vamos t
 5.  Orientação sexual.
 
 ```{r}
+#| code-line-numbers: 2
 #| echo: true
 df <- df_raw |> 
   dplyr::select(
