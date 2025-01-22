@@ -16,7 +16,7 @@ format:
     height: 900
     self-contained: false
     incremental: false
-    footer: "Slides por [Artur Damião](https://arturdamiao.com), feito com [Quarto](https://quarto.org/docs/presentations/revealjs/index.html). Código disponível [no GitHub](https://arturdamiao.github.io/pet-cs-gender/script/index.html#/)."
+    footer: "Slides por [Artur Damião](https://arturdamiao.com), feito com [Quarto](https://quarto.org/docs/presentations/revealjs/index.html). Código disponível [no GitHub](https://github.com/arturdamiao/pet-cs-gender)."
     theme: simple
     slide-number: c/t
     show-slide-number: all
@@ -39,6 +39,9 @@ Criem uma conta nos seguintes serviços:
 
 2.  [GitHub](https://github.com/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F&source=header-home)
 
+
+{{< fa brands github >}}
+
 ## Carregando as bibliotecas
 
 1.  Instalar bibliotecas
@@ -51,6 +54,7 @@ Criem uma conta nos seguintes serviços:
 #| label: importacao
 #| echo: true
 
+library(curl)
 library("googledrive")
 library("tidyverse")
 library("haven") # para ler arquivos .sav
@@ -92,7 +96,12 @@ No nosso caso, utilizaremos o seguinte código:
 
 ```{r}
 #| echo: true
-df_raw <- haven::read_sav("../dados/BANCO_PONDERADO_COMPLETO (2006-2019).sav")
+
+# URL do arquivo no GitHub
+url <- "https://raw.githubusercontent.com/arturdamiao/pet-cs-gender/master/dados/BANCO_PONDERADO_COMPLETO%20(2006-2019).sav"
+
+# Ler o arquivo diretamente da URL
+df_raw <- haven::read_sav(curl::curl(url))
 ```
 
 Nomeamos o objeto que "salva" nossa base de dados como **df_raw**. E o que isso significa?
