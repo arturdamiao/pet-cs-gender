@@ -1,6 +1,6 @@
 ---
 title: "Analisando sexualidade e gênero do alunado"
-subtitle: "*Hands-on* na base de dados do PET"
+subtitle: "*Hands-on na base de dados do PET*"
 author: "[Artur Damião](https://arturdamiao.com) <br><br>"
 institute: "_Programa de Educação Tutorial - Ciências Sociais_"
 date: 2025/01/22
