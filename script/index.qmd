@@ -31,16 +31,41 @@ knitr:
     fig.align: "center"
 ---
 
+# Prêambulo
+
+## Breve conxtetualização {footer=false}
+
+*   O conteúdo destes slides foram preparados a partir da comunicação de pesquisa das colegas petianas Ingrid Silva Sjobom; Maria Luiza Monteiro Vicente; Laura Farah Feitoza para o [SIICUSP de 2023](https://drive.google.com/file/d/1YqaFSQzoEre9fEHCC_8EtV_PnrSVvmNd/view?usp=drive_link). **Questões**:  
+
+1.    Por meio dos dados do PET, como abordar teoricamente o binarismo de gênero e a heterosexualidade compulsória no curso de Ciências Sociais?
+
+2.    Como explicar o aumento no número aumento de pessoas que fogem da matriz heterossexual e da monossexualidade?  
+
+<div style="margin-top: 01px;">
+  ![Diagrama baseado no SIICUSP (2023)](diagrama.png)
+</div>
+
+
+## Reprodutibilidade
+
+-   Eu não tenho acúmulo teórico para discutir as questões postas pelas colegas, tampouco subsídio o suficiente para conduzir uma discussão. Meu objetivo será contribuir para a reprodução do estudo das colegas, e o seu conseguinte aprofundamento.
+
+-   A reprodutibilidade exige que pesquisadores compartilhem métodos, dados e códigos, promovendo a transparência no processo do fazer científico.
+
+-   A reprodutibilidade facilita o compartilhamento de conhecimentos e métodos entre cientistas e a sociedade
+
+-   Sem reprodutibilidade, os resultados podem ser considerados espúrios ou irrelevantes.
+
+# *Mão na massa*
+
+
 ## Preparação
 
-Criem uma conta nos seguintes serviços:
+Criar uma conta nos seguintes serviços:
 
 1.  [Posit Cloud](https://login.posit.cloud/register?redirect=%2F)
 
 2.  [GitHub](https://github.com/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F&source=header-home)
-
-
-{{< fa brands github >}}
 
 ## Carregando as bibliotecas
 
